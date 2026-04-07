@@ -34,6 +34,8 @@
         "typescript-eslint": "^8.55.0"
     },
     "dependencies": {
+        "@inquirer/prompts": "^8.4.0",
+        "ora": "^9.3.0",
         "pg": "^8.18.0"
     }
 }
