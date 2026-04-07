@@ -1,0 +1,12 @@
+as a user, 
+    i want to save the db connection string and migration file path, 
+    so that i don't need to copy-paste every time i work on the project
+
+    i need visual confirmation about migration state,
+    so i can mitigate errors or confirm success
+
+    i want to be able to see logs about past migrations,
+    so that i can refer to it long term, in case of messy db
+
+    i want to be able to run through all of the migrations at once,
+    so i can set up my dbs faster

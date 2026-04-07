@@ -1,0 +1,8 @@
+startup     main menu   projects        [project list]      migrate     up
+                                                                        down
+                                                            logs
+                                                            delete project
+                                                            back
+                                        back
+                        user guide
+                        exit

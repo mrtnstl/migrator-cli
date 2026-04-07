@@ -1,0 +1,13 @@
+user:
+1. set up the project you want to operate on (connection str, migrations location)
+2. run migrations (up or down) on project
+
+program:
+1. save migration settings in sqlite db
+2. execute migration
+    I. get migrations metadata(version, timestamp, is_dirty) from table (create one if not exists)
+        i. if is_dirty == true, signal user and stop migration
+    II. read dir and select the appropriate file
+    III. read and execute the file content
+        i. if success, update metadata
+        ii. if failed, set dirty table metadata
