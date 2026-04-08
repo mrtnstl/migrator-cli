@@ -1,10 +1,24 @@
-import { search } from "@inquirer/prompts";
+import { number, search } from "@inquirer/prompts";
 import { renderHeader } from "./header.js";
 import { renderMainView } from "./mainView.js";
+import { dataRetrieval } from "../internals/db/database.js";
 
 export async function renderProjectsView() {
     console.clear();
     renderHeader();
+
+    const projectsQuery: {
+        id: number;
+        name: string;
+        db_conn_str: string;
+        migrations_location: string;
+    }[] = await dataRetrieval("SELECT * FROM data ORDER BY id;");
+    const projectsList = projectsQuery.map(project => ({
+        name: `[${project.id}] ${project.name}`,
+        value: String(project.id),
+        description: `project ${project.name}s record`,
+    }));
+
     const answer = await search({
         message: "Select a project",
         source: async (input, { signal }) => {
@@ -15,36 +29,42 @@ export async function renderProjectsView() {
                         value: "back",
                         description: "go back to the menu",
                     },
+                    {
+                        name: "create new project",
+                        value: "create",
+                        description: "create a new project",
+                    },
+                    ...projectsList,
+                ];
+            } else {
+                const projectsQuery: {
+                    id: number;
+                    name: string;
+                    db_conn_str: string;
+                    migrations_location: string;
+                }[] = await dataRetrieval(
+                    `SELECT * FROM data WHERE name LIKE '%${input}%' ORDER BY id;`
+                );
+
+                const projectsList = projectsQuery.map(project => ({
+                    name: `[${project.id}] ${project.name}`,
+                    value: String(project.id),
+                    description: `project ${project.name}s record`,
+                }));
+
+                return [
+                    {
+                        name: "back to menu",
+                        value: "back",
+                        description: "go back to the menu",
+                    },
+                    {
+                        name: "create new project",
+                        value: "create",
+                        description: "create a new project",
+                    },
                 ];
             }
-
-            // TODO: fetch and return project here
-            const mockResult = [
-                {
-                    name: "pro_01",
-                    value: "pro_01",
-                    description: "project number 1",
-                },
-                {
-                    name: "pro_02",
-                    value: "pro_02",
-                    description: "project number 2",
-                },
-                {
-                    name: "pro_03",
-                    value: "pro_03",
-                    description: "project number 3",
-                },
-            ];
-
-            return [
-                {
-                    name: "back to menu",
-                    value: "back",
-                    description: "go back to the menu",
-                },
-                ...mockResult,
-            ];
         },
     });
 
@@ -52,9 +72,11 @@ export async function renderProjectsView() {
         case answer === "back":
             renderMainView();
             break;
+        case answer === "create":
+            break;
         case answer !== "":
             return;
         default:
-            process.exit();
+            process.exit(1);
     }
 }
