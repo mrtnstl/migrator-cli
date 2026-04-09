@@ -1,11 +1,14 @@
-import { number, search } from "@inquirer/prompts";
+import { search } from "@inquirer/prompts";
 import { renderHeader } from "./header.js";
 import { renderMainView } from "./mainView.js";
 import { dataRetrieval } from "../internals/db/database.js";
+import { stdout } from "node:process";
+import { Colors } from "../common/colors.js";
 
 export async function renderProjectsView() {
     console.clear();
     renderHeader();
+    stdout.write(Colors.setColor("Projects Menu\n", { bolds: "white" }));
 
     const projectsQuery: {
         id: number;
@@ -16,7 +19,7 @@ export async function renderProjectsView() {
     const projectsList = projectsQuery.map(project => ({
         name: `[${project.id}] ${project.name}`,
         value: String(project.id),
-        description: `project ${project.name}s record`,
+        description: undefined,
     }));
 
     const answer = await search({
@@ -27,12 +30,12 @@ export async function renderProjectsView() {
                     {
                         name: "back to menu",
                         value: "back",
-                        description: "go back to the menu",
+                        description: undefined,
                     },
                     {
                         name: "create new project",
                         value: "create",
-                        description: "create a new project",
+                        description: undefined,
                     },
                     ...projectsList,
                 ];
@@ -49,22 +52,30 @@ export async function renderProjectsView() {
                 const projectsList = projectsQuery.map(project => ({
                     name: `[${project.id}] ${project.name}`,
                     value: String(project.id),
-                    description: `project ${project.name}s record`,
+                    description: undefined,
                 }));
 
                 return [
                     {
                         name: "back to menu",
                         value: "back",
-                        description: "go back to the menu",
+                        description: undefined,
                     },
                     {
                         name: "create new project",
                         value: "create",
-                        description: "create a new project",
+                        description: undefined,
                     },
                 ];
             }
+        },
+        theme: {
+            prefix: { idle: "", done: "" },
+            style: {
+                keysHelpTip: () => "",
+                message: () => "",
+                description: () => "",
+            },
         },
     });
 
