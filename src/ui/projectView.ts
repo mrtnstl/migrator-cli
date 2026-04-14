@@ -1,13 +1,15 @@
-import { search, select, Separator } from "@inquirer/prompts";
+import { select, Separator } from "@inquirer/prompts";
 import { renderHeader } from "./header.js";
-import { renderMainView } from "./mainView.js";
 import { dataRetrieval } from "../internals/db/database.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
-import { renderCreateProjectView } from "./createProjectView.js";
 import { renderProjectsView } from "./projectsView.js";
+import { runMigrationDown, runMigrationUp } from "../internals/runner.js";
 
-export async function renderProjectView(projectID: number) {
+export async function renderProjectView(
+    projectID: number,
+    migrationStatus: string
+) {
     const project: {
         id: number;
         name: string;
@@ -16,7 +18,7 @@ export async function renderProjectView(projectID: number) {
     } = (await dataRetrieval(`SELECT * FROM data WHERE id=${projectID}`))[0];
 
     console.clear();
-    renderHeader();
+    renderHeader(migrationStatus);
     stdout.write(Colors.setColor(`${project.name}\n`, { bolds: "white" }));
     console.table({
         id: project.id,
@@ -66,8 +68,42 @@ export async function renderProjectView(projectID: number) {
 
     switch (true) {
         case answer === "up":
-            break;
+            try {
+                await runMigrationUp(projectID);
+
+                renderProjectView(
+                    projectID,
+                    Colors.setColor("\nsuccess", { backgrounds: "green" })
+                );
+                break;
+            } catch (err: any) {
+                renderProjectView(
+                    projectID,
+                    Colors.setColor(
+                        `\nfail: ${err.message || "An unexpected error occured!"}`,
+                        {
+                            backgrounds: "red",
+                        }
+                    )
+                );
+                break;
+            }
         case answer === "down":
+            const { resultDown, errorDown } = await runMigrationDown(projectID);
+            if (errorDown) {
+                renderProjectView(
+                    projectID,
+                    Colors.setColor(`\nfail: ${errorDown}`, {
+                        backgrounds: "red",
+                    })
+                );
+                break;
+            }
+
+            renderProjectView(
+                projectID,
+                Colors.setColor("\nsuccess", { backgrounds: "green" })
+            );
             break;
         case answer === "settings":
             break;

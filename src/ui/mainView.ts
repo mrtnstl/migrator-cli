@@ -11,7 +11,7 @@ export async function renderMainView() {
     stdout.write(Colors.setColor("Main Menu\n", { bolds: "white" }));
 
     const answer = await select({
-        message: "__________",
+        message: "",
         choices: [
             {
                 name: "projects",

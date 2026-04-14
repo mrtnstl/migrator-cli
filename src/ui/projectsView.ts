@@ -4,26 +4,28 @@ import { renderMainView } from "./mainView.js";
 import { dataRetrieval } from "../internals/db/database.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
+import { renderCreateProjectView } from "./createProjectView.js";
+import { renderProjectView } from "./projectView.js";
 
 export async function renderProjectsView() {
     console.clear();
     renderHeader();
-    stdout.write(Colors.setColor("Projects Menu\n", { bolds: "white" }));
+    stdout.write(Colors.setColor("Projects\n", { bolds: "white" }));
 
-    const projectsQuery: {
+    let projectsQuery: {
         id: number;
         name: string;
         db_conn_str: string;
         migrations_location: string;
     }[] = await dataRetrieval("SELECT * FROM data ORDER BY id;");
-    const projectsList = projectsQuery.map(project => ({
+    let projectsList = projectsQuery.map(project => ({
         name: `[${project.id}] ${project.name}`,
         value: String(project.id),
         description: undefined,
     }));
 
     const answer = await search({
-        message: "Select a project",
+        message: "",
         source: async (input, { signal }) => {
             if (!input) {
                 return [
@@ -40,16 +42,11 @@ export async function renderProjectsView() {
                     ...projectsList,
                 ];
             } else {
-                const projectsQuery: {
-                    id: number;
-                    name: string;
-                    db_conn_str: string;
-                    migrations_location: string;
-                }[] = await dataRetrieval(
+                projectsQuery = await dataRetrieval(
                     `SELECT * FROM data WHERE name LIKE '%${input}%' ORDER BY id;`
                 );
 
-                const projectsList = projectsQuery.map(project => ({
+                projectsList = projectsQuery.map(project => ({
                     name: `[${project.id}] ${project.name}`,
                     value: String(project.id),
                     description: undefined,
@@ -66,6 +63,7 @@ export async function renderProjectsView() {
                         value: "create",
                         description: undefined,
                     },
+                    ...projectsList,
                 ];
             }
         },
@@ -73,7 +71,7 @@ export async function renderProjectsView() {
             prefix: { idle: "", done: "" },
             style: {
                 keysHelpTip: () => "",
-                message: () => "",
+                message: () => "search:",
                 description: () => "",
             },
         },
@@ -84,9 +82,16 @@ export async function renderProjectsView() {
             renderMainView();
             break;
         case answer === "create":
+            renderCreateProjectView();
             break;
         case answer !== "":
-            return;
+            renderProjectView(
+                parseInt(answer),
+                Colors.setColor("\n_", {
+                    backgrounds: "white",
+                })
+            );
+            break;
         default:
             process.exit(1);
     }
