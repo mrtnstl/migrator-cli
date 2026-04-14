@@ -1,6 +1,10 @@
 import { dataManipulation } from "./internals/db/database.js";
 import { renderMainView } from "./ui/mainView.js";
 
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("Unhandled Rejection at:", promise, "reason:", reason);
+});
+
 await dataManipulation(
     "INSERT INTO data(name, db_conn_str, migrations_location) VALUES (?, ?, ?)",
     [
@@ -11,22 +15,10 @@ await dataManipulation(
         ],
         [
             "some-bobby-project",
-            "postgres:some@dummy:commection/string",
+            "sqlite:some@dummy:commection/string",
             "migrations/on/local/machine",
         ],
     ]
 );
 
 renderMainView();
-
-/*
-const mySpinner = new Spinner("spinnin'");
-mySpinner.start();
-
-const spinnerTo = setTimeout(() => {
-    mySpinner.text("spinnin' done for good");
-    mySpinner.succeed();
-    clearTimeout(spinnerTo);
-}, 2000);
-*/
-//process.exit();
