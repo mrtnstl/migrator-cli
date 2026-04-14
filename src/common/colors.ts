@@ -56,23 +56,27 @@ export class Colors {
         switch (true) {
             case typeof options.colors !== "undefined":
                 opts.push(formatOptions.colors[options.colors as keyof Object]);
+                break;
             case typeof options.backgrounds !== "undefined":
                 opts.push(
                     formatOptions.backgrounds[
                         options.backgrounds as keyof Object
                     ]
                 );
+                break;
             case typeof options.bolds !== "undefined":
                 opts.push(formatOptions.bolds[options.bolds as keyof Object]);
+                break;
             case typeof options.underlines !== "undefined":
                 opts.push(
                     formatOptions.underlines[options.underlines as keyof Object]
                 );
+                break;
             default:
                 opts.push("");
+                break;
         }
         const proccessedOptions = opts.join().replaceAll(",", "");
-        console.log(proccessedOptions);
         return proccessedOptions + text + formatOptions.reset;
     }
 }
