@@ -2,18 +2,10 @@ import { Client } from "pg";
 import { Connector } from "./connector.js";
 
 export class PostgresConnector implements Connector {
-    client: Client | undefined = undefined;
+    private client: Client;
 
     constructor(connStr: string) {
-        this.connect(connStr);
-    }
-
-    connect(connectionStr: string): Client {
-        const client = new Client({
-            connectionString: connectionStr,
-        });
-        this.client = client;
-        return client;
+        this.client = new Client({ connectionString: connStr });
     }
 
     async disconnect(): Promise<void> {
@@ -21,5 +13,14 @@ export class PostgresConnector implements Connector {
             await this.client.end();
         }
         return;
+    }
+
+    async getClient() {
+        try {
+            console.log("POSTGRES CONNECTOR GET_CLIENT FUNC");
+            return this.client.connect();
+        } catch (err) {
+            throw err;
+        }
     }
 }
