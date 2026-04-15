@@ -5,4 +5,6 @@ export interface Repository {
         updated_at: Date;
     }>;
     runMigration(migration: string): Promise<void>;
+    setMigrationVersion(newVersion: number): Promise<void>;
+    setMigrationStateAsDirty(): Promise<void>;
 }

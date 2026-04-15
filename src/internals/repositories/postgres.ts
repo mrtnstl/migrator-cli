@@ -6,6 +6,16 @@ export class PostgresRepository implements Repository {
     constructor(client: Client) {
         this.client = client;
     }
+
+    async runMigration(migration: string): Promise<void> {
+        try {
+            await this.client?.query(migration);
+            return;
+        } catch (err) {
+            throw err;
+        }
+    }
+
     async getMetaTable(): Promise<{
         version: number;
         is_dirty: boolean;
@@ -20,27 +30,69 @@ export class PostgresRepository implements Repository {
                 version: number;
                 is_dirty: boolean;
                 updated_at: Date;
-            }>("SELECT * FROM migrations;");
+            }>(
+                "SELECT version, is_dirty, updated_at FROM migrations WHERE id = 1;"
+            );
 
             if (queryResult.rows.length === 0) {
                 throw new Error("No rows found in migrations table");
             }
 
-            // Általában csak az első sort vesszük (meta tábla esetén)
             const meta = queryResult.rows[0];
-
+            console.log("GET_META_TABLE RESULT", queryResult);
             return meta;
+        } catch (err: any) {
+            if (err.message.includes(`relation "migrations" does not exist`)) {
+                await this.client.query(`
+                    CREATE TABLE IF NOT EXISTS migrations (
+                        id SMALLINT PRIMARY KEY DEFAULT 1,
+                        version INT NOT NULL DEFAULT 0,
+                        is_dirty BOOL NOT NULL DEFAULT FALSE,
+                        updated_at TIMESTAMPTZ DEFAULT NOW()
+                    );
+                    `);
+                const insertRecord = await this.client.query<{
+                    version: number;
+                    is_dirty: boolean;
+                    updated_at: Date;
+                }>(`
+                    INSERT INTO migrations (version) 
+                    VALUES (0) 
+                    RETURNING version, is_dirty, updated_at;
+                    `);
+                return insertRecord.rows[0];
+            }
+
+            throw err;
+        }
+    }
+    async setMigrationVersion(newVersion: number): Promise<void> {
+        try {
+            const res = await this.client.query(
+                `
+                UPDATE migrations 
+                SET version = $1, updated_at = NOW() 
+                WHERE id = 1 
+                RETURNING id, version, is_dirty, updated_at;
+                `,
+                [newVersion]
+            );
+            console.log(res.rows[0]);
+            return;
         } catch (err) {
             throw err;
         }
     }
 
-    async runMigration(migration: string): Promise<void> {
+    async setMigrationStateAsDirty(): Promise<void> {
         try {
-            await this.client?.query(migration);
-            return;
-        } catch (err) {
-            throw err;
-        }
+            await this.client.query(
+                `
+                UPDATE migrations
+                SET is_dirty = TRUE
+                WHERE id = 1;
+                `
+            );
+        } catch (err) {}
     }
 }
