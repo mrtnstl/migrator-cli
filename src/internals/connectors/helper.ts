@@ -6,6 +6,8 @@ export function getConnection(connStr: string): Connector {
         switch (connStr.split(":")[0]) {
             case "postgres":
                 return new PostgresConnector(connStr);
+            case "postgresql":
+                return new PostgresConnector(connStr);
             default:
                 throw new Error("Invalid connection string!");
         }

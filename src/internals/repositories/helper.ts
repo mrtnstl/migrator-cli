@@ -6,6 +6,8 @@ export function getRepository(client: any, connStr: string): Repository | null {
         switch (connStr.split(":")[0]) {
             case "postgres":
                 return new PostgresRepository(client);
+            case "postgresql":
+                return new PostgresRepository(client);
             default:
                 throw new Error(
                     "Invalid Client instance or connection string!"
