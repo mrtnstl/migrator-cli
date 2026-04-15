@@ -1,3 +1,7 @@
 export interface Reader {
-    read(path: string): Promise<string>;
+    readMigrationFile(
+        path: string,
+        currentVersion: number,
+        direction: "up" | "down"
+    ): Promise<string>;
 }
