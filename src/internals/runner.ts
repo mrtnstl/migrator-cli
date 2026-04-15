@@ -9,50 +9,71 @@ export async function runMigrationUp(projectID: number): Promise<void> {
     // get metadata from db
     // read migr. files
     // update metadata(dirty table if failed)
-    try {
-        // getting project data (conn. str., migration location)
-        const project: {
-            id: number;
-            name: string;
-            db_conn_str: string;
-            migrations_location: string;
-        } = (
-            await dataRetrieval(`SELECT * FROM data WHERE id=${projectID}`)
-        )[0];
 
-        // setup DB connection
-        console.log("before connection");
-        let db = getConnection(project.db_conn_str);
-        const client = await db.getClient();
-        let repository = getRepository(client, project.db_conn_str);
-        if (repository === null) {
-            throw new Error("Failing repository instance!");
-        }
-        console.log("after connection");
+    // getting project data (conn. str., migration location)
+    const project: {
+        id: number;
+        name: string;
+        db_conn_str: string;
+        migrations_location: string;
+    } = (await dataRetrieval(`SELECT * FROM data WHERE id=${projectID}`))[0];
+
+    // setup DB connection
+    let db = getConnection(project.db_conn_str);
+    const client = await db.getClient();
+
+    let repository = getRepository(client, project.db_conn_str);
+    if (repository === null) {
+        throw new Error("Failing repository instance!");
+    }
+
+    try {
         // getting migrations metadata from DB
         const metaTable = await repository.getMetaTable();
         if (metaTable.is_dirty) {
-            throw new Error("Database is potentially dirty!");
+            throw new Error("Database is dirty! ...");
         }
-        console.log("after meta table query");
+
         // reading migration files
         const reader: Reader = new FileReader();
         // get correct file (get current version from db meta)
-        const migrationFiles = await reader.read(project.migrations_location);
+        const migrationFile = await reader.readMigrationFile(
+            project.migrations_location,
+            metaTable.version,
+            "up"
+        );
 
-        await repository.runMigration(migrationFiles);
+        await repository.runMigration(migrationFile);
 
-        // write meta table, bump version
+        // update meta table, bump version
+        const newVersion = metaTable.version + 1;
+        await repository.setMigrationVersion(newVersion);
 
+        // cleanup
         repository = null;
-        await client.disconnect();
+        await db.disconnect();
+
         return;
     } catch (err: any) {
         if (err instanceof MigrationError) {
-            // write to meta table, dirty table
+            // update meta table, dirty table
+            if (repository) {
+                await repository?.setMigrationStateAsDirty();
+            } else {
+                throw new Error(
+                    `An unexpected error occurred and the program failed to update the migration table state! (dirty)
+This requires immediate attention!`
+                );
+            }
+
             throw err;
         }
+
         throw err;
+    } finally {
+        // cleanup
+        repository = null;
+        await db.disconnect();
     }
 }
 
