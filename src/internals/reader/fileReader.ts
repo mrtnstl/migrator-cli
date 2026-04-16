@@ -33,7 +33,7 @@ export class FileReader implements Reader {
                 if (direction === "up") {
                     return 1;
                 } else if (direction === "down") {
-                    return -1;
+                    return 0;
                 } else {
                     throw new Error(
                         "An error occurred while calculating migration direction value!"
