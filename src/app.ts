@@ -1,24 +1,25 @@
-import { dataManipulation } from "./internals/db/database.js";
+import { insertNewProjects } from "./internals/db/database.js";
+import { renderErrorView } from "./ui/errorView.js";
 import { renderMainView } from "./ui/mainView.js";
 
 process.on("unhandledRejection", (reason, promise) => {
     console.error("Unhandled Rejection at:", promise, "reason:", reason);
+    renderErrorView(reason);
 });
 
-await dataManipulation(
-    "INSERT INTO data(name, db_conn_str, migrations_location) VALUES (?, ?, ?)",
+// dummy projects for development
+insertNewProjects([
     [
-        [
-            "important-backend",
-            "postgres:some@dummy:commection/string",
-            "migrations/on/local/machine",
-        ],
-        [
-            "some-bobby-project",
-            "sqlite:some@dummy:commection/string",
-            "migrations/on/local/machine",
-        ],
-    ]
-);
+        "important-backend",
+        "postgres:some@dummy:commection/string",
+        "migrations/on/local/machine",
+    ],
+    [
+        "some-bobby-project",
+        "sqlite:some@dummy:commection/string",
+        "migrations/on/local/machine",
+    ],
+]);
 
+// main view, app entrypoint
 renderMainView();
