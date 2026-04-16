@@ -3,7 +3,7 @@ import { Colors } from "../common/colors.js";
 import { titleMigratorDL } from "./title.js";
 
 export function renderHeader(
-    migrationStatus: string = `${Colors.setColor("\n_", {
+    appLevelNotification: string = `${Colors.setColor("\n_", {
         backgrounds: "white",
     })}`
 ) {
@@ -16,6 +16,6 @@ export function renderHeader(
             { bolds: "white" }
         )
     );
-    stdout.write(migrationStatus);
+    stdout.write(appLevelNotification);
     stdout.write("\n\n");
 }
