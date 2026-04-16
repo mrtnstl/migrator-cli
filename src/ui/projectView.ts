@@ -73,13 +73,19 @@ export async function renderProjectView(
 
                 renderProjectView(
                     projectID,
-                    Colors.setColor("\nsuccess", { backgrounds: "green" })
+                    Colors.setColor("\nMigrated successfully (up)", {
+                        backgrounds: "green",
+                    })
                 );
                 break;
             } catch (err: any) {
                 let errorMessage = err.message;
                 if (err.message.includes("ECONNREFUSED")) {
                     errorMessage = "Failed to connect to database!";
+                }
+                if (err.message.includes("no such file or directory")) {
+                    errorMessage =
+                        "Failed to open migration file! No file found with the appropriate name.";
                 }
                 renderProjectView(
                     projectID,
@@ -93,22 +99,36 @@ export async function renderProjectView(
                 break;
             }
         case answer === "down":
-            const { resultDown, errorDown } = await runMigrationDown(projectID);
-            if (errorDown) {
+            try {
+                await runMigrationDown(projectID);
+
                 renderProjectView(
                     projectID,
-                    Colors.setColor(`\nfail: ${errorDown}`, {
-                        backgrounds: "red",
+                    Colors.setColor("\nMigrated successfully (down)", {
+                        backgrounds: "green",
                     })
                 );
                 break;
+            } catch (err: any) {
+                let errorMessage = err.message;
+                if (err.message.includes("ECONNREFUSED")) {
+                    errorMessage = "Failed to connect to database!";
+                }
+                if (err.message.includes("no such file or directory")) {
+                    errorMessage =
+                        "Failed to open migration file! No file found with the appropriate name.";
+                }
+                renderProjectView(
+                    projectID,
+                    Colors.setColor(
+                        `\nERROR: ${errorMessage || "An unexpected error occurred!"}`,
+                        {
+                            backgrounds: "red",
+                        }
+                    )
+                );
+                break;
             }
-
-            renderProjectView(
-                projectID,
-                Colors.setColor("\nsuccess", { backgrounds: "green" })
-            );
-            break;
         case answer === "settings":
             break;
         case answer === "back":
