@@ -15,11 +15,12 @@ export async function renderErrorView(reason: unknown) {
     }
 
     console.clear();
-    renderHeader();
+    renderHeader(Colors.setColor("\nFatal Error", { backgrounds: "red" }));
+    // TODO: this is yellow for some reason
     stdout.write(Colors.setColor("Fatal Error\n", { bolds: "red" }));
 
-    stdout.write(`
-\x1b[0m${Colors.setColor(error.name, { backgrounds: "red" })}
+    stdout.write(`\x1b[0m
+${Colors.setColor(error.name, { backgrounds: "red" })}
 
 ${Colors.setColor(error.message, { backgrounds: "red" })}
 
