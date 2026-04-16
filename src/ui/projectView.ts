@@ -4,7 +4,7 @@ import { selectProjectByID } from "../internals/db/database.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { renderProjectsView } from "./projectsView.js";
-import { runMigrationDown, runMigrationUp } from "../internals/runner.js";
+import { runMigration } from "../internals/runner.js";
 
 export async function renderProjectView(
     projectID: number,
@@ -69,7 +69,7 @@ export async function renderProjectView(
     switch (true) {
         case answer === "up":
             try {
-                await runMigrationUp(projectID);
+                await runMigration(projectID, "up");
 
                 renderProjectView(
                     projectID,
@@ -100,7 +100,7 @@ export async function renderProjectView(
             }
         case answer === "down":
             try {
-                await runMigrationDown(projectID);
+                await runMigration(projectID, "down");
 
                 renderProjectView(
                     projectID,
