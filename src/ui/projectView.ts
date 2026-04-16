@@ -1,6 +1,6 @@
 import { select, Separator } from "@inquirer/prompts";
 import { renderHeader } from "./header.js";
-import { dataRetrieval } from "../internals/db/database.js";
+import { selectProjectByID } from "../internals/db/database.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { renderProjectsView } from "./projectsView.js";
@@ -15,7 +15,7 @@ export async function renderProjectView(
         name: string;
         db_conn_str: string;
         migrations_location: string;
-    } = (await dataRetrieval(`SELECT * FROM data WHERE id=${projectID}`))[0];
+    } = (await selectProjectByID(projectID))[0];
 
     console.clear();
     renderHeader(migrationStatus);
@@ -77,10 +77,14 @@ export async function renderProjectView(
                 );
                 break;
             } catch (err: any) {
+                let errorMessage = err.message;
+                if (err.message.includes("ECONNREFUSED")) {
+                    errorMessage = "Failed to connect to database!";
+                }
                 renderProjectView(
                     projectID,
                     Colors.setColor(
-                        `\nfail: ${err.message || "An unexpected error occured!"}`,
+                        `\nERROR: ${errorMessage || "An unexpected error occurred!"}`,
                         {
                             backgrounds: "red",
                         }
