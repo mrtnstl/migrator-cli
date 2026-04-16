@@ -1,7 +1,10 @@
 import { search } from "@inquirer/prompts";
 import { renderHeader } from "./header.js";
 import { renderMainView } from "./mainView.js";
-import { dataRetrieval } from "../internals/db/database.js";
+import {
+    searchProjectsByName,
+    selectAllProjects,
+} from "../internals/db/database.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { renderCreateProjectView } from "./createProjectView.js";
@@ -17,7 +20,7 @@ export async function renderProjectsView() {
         name: string;
         db_conn_str: string;
         migrations_location: string;
-    }[] = await dataRetrieval("SELECT * FROM data ORDER BY id;");
+    }[] = await selectAllProjects();
     let projectsList = projectsQuery.map(project => ({
         name: `[${project.id}] ${project.name}`,
         value: String(project.id),
@@ -42,9 +45,7 @@ export async function renderProjectsView() {
                     ...projectsList,
                 ];
             } else {
-                projectsQuery = await dataRetrieval(
-                    `SELECT * FROM data WHERE name LIKE '%${input}%' ORDER BY id;`
-                );
+                projectsQuery = await searchProjectsByName(input);
 
                 projectsList = projectsQuery.map(project => ({
                     name: `[${project.id}] ${project.name}`,

@@ -1,9 +1,9 @@
-import { confirm, input, select, Separator } from "@inquirer/prompts";
+import { confirm, input } from "@inquirer/prompts";
 import { renderHeader } from "./header.js";
 import { renderProjectsView } from "./projectsView.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
-import { dataManipulation } from "../internals/db/database.js";
+import { insertNewProjects } from "../internals/db/database.js";
 
 export async function renderCreateProjectView() {
     console.clear();
@@ -62,10 +62,10 @@ export async function renderCreateProjectView() {
         return renderProjectsView();
     } else {
         // saving new project
-        dataManipulation(
-            "INSERT INTO data(name, db_conn_str, migrations_location) VALUES (?, ?, ?)",
-            [[answers.name, answers.database, answers.migrations]]
-        );
+        await insertNewProjects([
+            [answers.name, answers.database, answers.migrations],
+        ]);
+
         return renderProjectsView();
     }
 }

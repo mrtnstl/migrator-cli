@@ -1,6 +1,6 @@
 import { MigrationError } from "../common/errors.js";
 import { getConnection } from "./connectors/helper.js";
-import { dataRetrieval } from "./db/database.js";
+import { selectProjectByID } from "./db/database.js";
 import { FileReader } from "./reader/fileReader.js";
 import { Reader } from "./reader/reader.js";
 import { getRepository } from "./repositories/helper.js";
@@ -16,7 +16,7 @@ export async function runMigrationUp(projectID: number): Promise<void> {
         name: string;
         db_conn_str: string;
         migrations_location: string;
-    } = (await dataRetrieval(`SELECT * FROM data WHERE id=${projectID}`))[0];
+    } = (await selectProjectByID(projectID))[0];
 
     // setup DB connection
     let db = getConnection(project.db_conn_str);
