@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS test (
+    id BIGINT PRIMARY KEY,
+    some_data VARCHAR(100) DEFAULT ''
+);
