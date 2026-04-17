@@ -5,7 +5,7 @@ import { prompt } from "../common/prompt.js";
 import { renderMainView } from "./mainView.js";
 
 export async function renderErrorView(reason: unknown) {
-    let error: { name: string; message: string } = {
+    const error: { name: string; message: string } = {
         name: "Unknown Error",
         message: "An unexpected error occurred!",
     };

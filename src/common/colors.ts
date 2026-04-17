@@ -55,21 +55,21 @@ export class Colors {
         const opts = [];
         switch (true) {
             case typeof options.colors !== "undefined":
-                opts.push(formatOptions.colors[options.colors as keyof Object]);
+                opts.push(formatOptions.colors[options.colors as keyof object]);
                 break;
             case typeof options.backgrounds !== "undefined":
                 opts.push(
                     formatOptions.backgrounds[
-                        options.backgrounds as keyof Object
+                        options.backgrounds as keyof object
                     ]
                 );
                 break;
             case typeof options.bolds !== "undefined":
-                opts.push(formatOptions.bolds[options.bolds as keyof Object]);
+                opts.push(formatOptions.bolds[options.bolds as keyof object]);
                 break;
             case typeof options.underlines !== "undefined":
                 opts.push(
-                    formatOptions.underlines[options.underlines as keyof Object]
+                    formatOptions.underlines[options.underlines as keyof object]
                 );
                 break;
             default:

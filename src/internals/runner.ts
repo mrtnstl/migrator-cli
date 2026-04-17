@@ -18,7 +18,7 @@ export async function runMigration(
     } = (await selectProjectByID(projectID))[0];
 
     // setup DB connection
-    let db = getConnection(project.db_conn_str);
+    const db = getConnection(project.db_conn_str);
     const client = await db.getClient();
 
     let repository = getRepository(client, project.db_conn_str);
