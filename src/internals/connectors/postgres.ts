@@ -17,10 +17,9 @@ export class PostgresConnector implements Connector {
 
     async getClient() {
         try {
-            console.log("POSTGRES CONNECTOR GET_CLIENT FUNC");
             return this.client.connect();
-        } catch (err) {
-            throw err;
+        } catch (err: any) {
+            throw new Error("Database connection error!");
         }
     }
 }

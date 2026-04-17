@@ -7,13 +7,18 @@ export class PostgresRepository implements Repository {
         this.client = client;
     }
 
+    async beginTx(): Promise<void> {
+        await this.client.query("BEGIN");
+    }
+    async commitTx(): Promise<void> {
+        await this.client.query("COMMIT");
+    }
+    async rollbackTx(): Promise<void> {
+        await this.client.query("ROLLBACK");
+    }
     async runMigration(migration: string): Promise<void> {
-        try {
-            await this.client?.query(migration);
-            return;
-        } catch (err) {
-            throw err;
-        }
+        await this.client.query(migration);
+        return;
     }
 
     async getMetaTable(): Promise<{
@@ -39,7 +44,7 @@ export class PostgresRepository implements Repository {
             }
 
             const meta = queryResult.rows[0];
-            console.log("GET_META_TABLE RESULT", queryResult);
+
             return meta;
         } catch (err: any) {
             if (err.message.includes(`relation "migrations" does not exist`)) {
@@ -67,21 +72,17 @@ export class PostgresRepository implements Repository {
         }
     }
     async setMigrationVersion(newVersion: number): Promise<void> {
-        try {
-            const res = await this.client.query(
-                `
+        await this.client.query(
+            `
                 UPDATE migrations 
                 SET version = $1, updated_at = NOW() 
                 WHERE id = 1 
                 RETURNING id, version, is_dirty, updated_at;
                 `,
-                [newVersion]
-            );
-            console.log(res.rows[0]);
-            return;
-        } catch (err) {
-            throw err;
-        }
+            [newVersion]
+        );
+
+        return;
     }
 
     async setMigrationStateAsDirty(): Promise<void> {
@@ -93,6 +94,8 @@ export class PostgresRepository implements Repository {
                 WHERE id = 1;
                 `
             );
-        } catch (err) {}
+        } catch (err) {
+            throw err;
+        }
     }
 }

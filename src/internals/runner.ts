@@ -23,14 +23,16 @@ export async function runMigration(
 
     let repository = getRepository(client, project.db_conn_str);
     if (repository === null) {
-        throw new Error("Failing repository instance!");
+        throw new Error("Failed to instantiate repository instance!");
     }
 
     try {
         // getting migrations metadata from DB
         const metaTable = await repository.getMetaTable();
         if (metaTable.is_dirty) {
-            throw new Error("Database is dirty! ...");
+            throw new Error(
+                "Database is in dirty state! Manual intervention required."
+            );
         }
 
         // reading migration files
@@ -42,6 +44,8 @@ export async function runMigration(
             direction
         );
 
+        // execute migration in a transaction
+        await repository.beginTx();
         await repository.runMigration(migrationFile);
 
         // update meta table, bump version
@@ -49,8 +53,19 @@ export async function runMigration(
             direction === "up" ? metaTable.version + 1 : metaTable.version - 1;
         await repository.setMigrationVersion(newVersion);
 
+        await repository.commitTx();
+
         return;
     } catch (err: any) {
+        try {
+            await repository.rollbackTx();
+        } catch (err: any) {
+            throw new Error(
+                "Transaction rollback failed, after a failed migration attempt.",
+                err.message
+            );
+        }
+
         if (err instanceof MigrationError) {
             // update meta table, dirty table
             if (repository) {
