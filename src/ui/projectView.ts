@@ -7,17 +7,14 @@ import { renderProjectsView } from "./projectsView.js";
 import { runMigration } from "../internals/runner.js";
 import { Spinner } from "../common/spinner.js";
 import { prompt } from "../common/prompt.js";
+import { TProject } from "../types/index.js";
+import { ensureError } from "../common/errors.js";
 
 export async function renderProjectView(
     projectID: number,
     migrationStatus: string
 ) {
-    const project: {
-        id: number;
-        name: string;
-        db_conn_str: string;
-        migrations_location: string;
-    } = (await selectProjectByID(projectID))[0];
+    const project: TProject = await selectProjectByID(projectID);
 
     console.clear();
     renderHeader(migrationStatus);
@@ -80,12 +77,15 @@ export async function renderProjectView(
                     })
                 );
                 break;
-            } catch (err: any) {
-                let errorMessage = err.message;
-                if (err.message.includes("ECONNREFUSED")) {
+            } catch (err: unknown) {
+                const formattedErr = ensureError(err);
+                let errorMessage = formattedErr.message;
+                if (formattedErr.message.includes("ECONNREFUSED")) {
                     errorMessage = "Failed to connect to database!";
                 }
-                if (err.message.includes("no such file or directory")) {
+                if (
+                    formattedErr.message.includes("no such file or directory")
+                ) {
                     errorMessage =
                         "Failed to open migration file! No file found with the appropriate name.";
                 }
@@ -111,12 +111,15 @@ export async function renderProjectView(
                     })
                 );
                 break;
-            } catch (err: any) {
-                let errorMessage = err.message;
-                if (err.message.includes("ECONNREFUSED")) {
+            } catch (err: unknown) {
+                const formattedErr = ensureError(err);
+                let errorMessage = formattedErr.message;
+                if (formattedErr.message.includes("ECONNREFUSED")) {
                     errorMessage = "Failed to connect to database!";
                 }
-                if (err.message.includes("no such file or directory")) {
+                if (
+                    formattedErr.message.includes("no such file or directory")
+                ) {
                     errorMessage =
                         "Failed to open migration file! No file found with the appropriate name.";
                 }

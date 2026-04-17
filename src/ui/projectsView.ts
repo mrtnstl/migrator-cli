@@ -9,19 +9,15 @@ import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { renderCreateProjectView } from "./createProjectView.js";
 import { renderProjectView } from "./projectView.js";
+import { TProject } from "../types/index.js";
 
 export async function renderProjectsView() {
     console.clear();
     renderHeader();
     stdout.write(Colors.setColor("Projects\n", { bolds: "white" }));
 
-    let projectsQuery: {
-        id: number;
-        name: string;
-        db_conn_str: string;
-        migrations_location: string;
-    }[] = await selectAllProjects();
-    let projectsList = projectsQuery.map(project => ({
+    let projectsQuery = await selectAllProjects();
+    let projectsList = projectsQuery.map((project: TProject) => ({
         name: `[${project.id}] ${project.name}`,
         value: String(project.id),
         description: undefined,

@@ -1,4 +1,5 @@
-import { MigrationError } from "../common/errors.js";
+import { ensureError, MigrationError } from "../common/errors.js";
+import { TProject } from "../types/index.js";
 import { getConnection } from "./connectors/helper.js";
 import { selectProjectByID } from "./db/database.js";
 import { FileReader } from "./reader/fileReader.js";
@@ -10,18 +11,13 @@ export async function runMigration(
     direction: "up" | "down"
 ): Promise<void> {
     // getting project data (conn. str., migration location, ...)
-    const project: {
-        id: number;
-        name: string;
-        db_conn_str: string;
-        migrations_location: string;
-    } = (await selectProjectByID(projectID))[0];
+    const project: TProject = await selectProjectByID(projectID);
 
     // setup DB connection
     const db = getConnection(project.db_conn_str);
     const client = await db.getClient();
 
-    let repository = getRepository(client, project.db_conn_str);
+    const repository = getRepository(client, project.db_conn_str);
     if (repository === null) {
         throw new Error("Failed to instantiate repository instance!");
     }
@@ -56,25 +52,36 @@ export async function runMigration(
         await repository.commitTx();
 
         return;
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const formattedErr = ensureError(err);
         try {
             await repository.rollbackTx();
-        } catch (err: any) {
-            throw new Error(
-                "Transaction rollback failed, after a failed migration attempt.",
-                err.message
+        } catch (err: unknown) {
+            const newErr = new Error(
+                "Transaction rollback failed, after a failed migration attempt!",
+                { cause: formattedErr }
             );
+            newErr.cause = err;
+            throw newErr;
         }
 
         if (err instanceof MigrationError) {
             // update meta table, dirty table
             if (repository) {
-                await repository.setMigrationStateAsDirty();
+                try {
+                    await repository.setMigrationStateAsDirty();
+                } catch (migrationErr: unknown) {
+                    throw new Error(
+                        "An error occurred while updating meta table after a failed migration!",
+                        { cause: migrationErr }
+                    );
+                }
                 throw err;
             } else {
                 throw new Error(
                     `An unexpected error occurred and the program failed to update the migration table state! (dirty)
-This requires immediate attention!`
+This requires immediate attention!`,
+                    { cause: err }
                 );
             }
         }
@@ -82,7 +89,6 @@ This requires immediate attention!`
         throw err;
     } finally {
         // cleanup
-        repository = null;
         await db.disconnect();
     }
 }

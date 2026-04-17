@@ -1,5 +1,6 @@
 import { access, readdir, readFile } from "fs/promises";
 import { Reader } from "./reader.js";
+import { ensureError } from "../../common/errors.js";
 
 export class FileReader implements Reader {
     constructor() {}
@@ -20,7 +21,7 @@ export class FileReader implements Reader {
 
             type FileData = { v: number; t: string; name: string };
 
-            const migrationsArray: FileData[] = filesInDir!.map(
+            const migrationsArray: FileData[] = filesInDir.map(
                 (file: string) => {
                     const version = parseInt(file.split("_")[0]);
                     const type = file.split(".")[1];
@@ -41,9 +42,12 @@ export class FileReader implements Reader {
                 }
             };
             const nextVersion = currentVersion + directionValue();
-            const selectedMigration = migrationsArray?.find(
+            const selectedMigration = migrationsArray.find(
                 record => record.v === nextVersion && record.t === direction
             );
+            if (!selectedMigration) {
+                throw new Error("Couldn't find appropriate migration file!");
+            }
 
             const migrationContent = await readFile(
                 `${path}/${selectedMigration?.name}`,
@@ -51,8 +55,8 @@ export class FileReader implements Reader {
             );
 
             return migrationContent;
-        } catch (err: any) {
-            throw err;
+        } catch (err: unknown) {
+            throw ensureError(err);
         }
     }
 }

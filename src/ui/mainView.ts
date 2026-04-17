@@ -49,7 +49,7 @@ export async function renderMainView() {
             break;
         case "exit":
             console.clear();
-            process.exit();
+            return;
         default:
             process.exit();
     }

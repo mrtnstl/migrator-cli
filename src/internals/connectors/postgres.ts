@@ -1,5 +1,6 @@
 import { Client } from "pg";
 import { Connector } from "./connector.js";
+import { ensureError } from "../../common/errors.js";
 
 export class PostgresConnector implements Connector {
     private client: Client;
@@ -18,8 +19,10 @@ export class PostgresConnector implements Connector {
     async getClient() {
         try {
             return this.client.connect();
-        } catch (err: any) {
-            throw new Error("Database connection error!");
+        } catch (err: unknown) {
+            throw new Error("Database connection error!", {
+                cause: err,
+            });
         }
     }
 }

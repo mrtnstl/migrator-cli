@@ -1,4 +1,5 @@
 import { DatabaseSync, SQLInputValue } from "node:sqlite";
+import { TProject } from "../../types/index.js";
 
 const db = new DatabaseSync(":memory:");
 db.exec(`
@@ -30,12 +31,12 @@ export function insertNewProjects(
     });
 }
 
-export function selectAllProjects(): Promise<any | Error> {
+export function selectAllProjects(): Promise<TProject[]> {
     return new Promise((resolve, reject) => {
         try {
             const statement = db.prepare("SELECT * FROM data ORDER BY id;");
             const result = statement.all();
-            resolve(result);
+            resolve(result as TProject[]);
         } catch (err) {
             reject(err);
         }
@@ -44,28 +45,26 @@ export function selectAllProjects(): Promise<any | Error> {
 
 export function searchProjectsByName(
     searchWord: SQLInputValue
-): Promise<any | Error> {
+): Promise<TProject[]> {
     return new Promise((resolve, reject) => {
         try {
             const statement = db.prepare(
                 "SELECT * FROM data WHERE name LIKE '%' || ? || '%' ORDER BY id;"
             );
             const result = statement.all(searchWord);
-            resolve(result);
+            resolve(result as TProject[]);
         } catch (err) {
             reject(err);
         }
     });
 }
 
-export function selectProjectByID(
-    projectID: SQLInputValue
-): Promise<any | Error> {
+export function selectProjectByID(projectID: SQLInputValue): Promise<TProject> {
     return new Promise((resolve, reject) => {
         try {
             const statement = db.prepare("SELECT * FROM data WHERE id = ?;");
-            const result = statement.all(projectID);
-            resolve(result);
+            const result = statement.all(projectID)[0];
+            resolve(result as TProject);
         } catch (err) {
             reject(err);
         }

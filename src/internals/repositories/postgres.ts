@@ -1,5 +1,6 @@
 import { Client } from "pg";
 import { Repository } from "./repository.js";
+import { ensureError } from "../../common/errors.js";
 
 export class PostgresRepository implements Repository {
     client: Client;
@@ -46,8 +47,13 @@ export class PostgresRepository implements Repository {
             const meta = queryResult.rows[0];
 
             return meta;
-        } catch (err: any) {
-            if (err.message.includes(`relation "migrations" does not exist`)) {
+        } catch (err: unknown) {
+            const formattedError = ensureError(err);
+            if (
+                formattedError.message.includes(
+                    `relation "migrations" does not exist`
+                )
+            ) {
                 await this.client.query(`
                     CREATE TABLE IF NOT EXISTS migrations (
                         id SMALLINT PRIMARY KEY DEFAULT 1,
@@ -86,16 +92,12 @@ export class PostgresRepository implements Repository {
     }
 
     async setMigrationStateAsDirty(): Promise<void> {
-        try {
-            await this.client.query(
-                `
+        await this.client.query(
+            `
                 UPDATE migrations
                 SET is_dirty = TRUE
                 WHERE id = 1;
                 `
-            );
-        } catch (err) {
-            throw err;
-        }
+        );
     }
 }
