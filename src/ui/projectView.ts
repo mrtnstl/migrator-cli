@@ -135,7 +135,7 @@ export async function renderProjectView(
                 break;
             }
         case answer === "settings":
-            const spinner = new Spinner(
+            /*const spinner = new Spinner(
                 Colors.setColor("Loadin' some shi...", { backgrounds: "white" })
             );
             spinner.start();
@@ -171,6 +171,7 @@ export async function renderProjectView(
                         process.exit(1);
                 }
             }, 8000);
+            */
             break;
         case answer === "back":
             renderProjectsView();
