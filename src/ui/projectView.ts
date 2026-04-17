@@ -5,6 +5,8 @@ import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { renderProjectsView } from "./projectsView.js";
 import { runMigration } from "../internals/runner.js";
+import { Spinner } from "../common/spinner.js";
+import { prompt } from "../common/prompt.js";
 
 export async function renderProjectView(
     projectID: number,
@@ -130,6 +132,42 @@ export async function renderProjectView(
                 break;
             }
         case answer === "settings":
+            const spinner = new Spinner(
+                Colors.setColor("Loadin' some shi...", { backgrounds: "white" })
+            );
+            spinner.start();
+            let messageIdx = 0;
+            const messageChangeInterval = setInterval(() => {
+                const messages: string[] = [
+                    "You almost there!",
+                    "Just a sec. bro...",
+                    "Don't be so hasty, bigboss.",
+                ];
+                spinner.setMessage(messages[messageIdx]);
+                messageIdx = (messageIdx + 1) % messages.length;
+            }, 2000);
+            setTimeout(async () => {
+                clearInterval(messageChangeInterval);
+                spinner.stop("It done now !");
+                const answer = await prompt(
+                    Colors.setColor("Press ENTER to go back", {
+                        underlines: "blue",
+                    })
+                );
+
+                switch (true) {
+                    case answer === "":
+                        renderProjectView(
+                            projectID,
+                            Colors.setColor("\n_", {
+                                backgrounds: "white",
+                            })
+                        );
+                        break;
+                    default:
+                        process.exit(1);
+                }
+            }, 8000);
             break;
         case answer === "back":
             renderProjectsView();
