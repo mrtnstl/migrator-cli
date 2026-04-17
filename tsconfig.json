@@ -8,7 +8,7 @@
         "outDir": "./dist",
         "rootDir": "./src",
         "forceConsistentCasingInFileNames": true,
-        
+
         "lib": [
             "es2024",
             "ESNext.Array",
@@ -28,5 +28,5 @@
         "moduleResolution": "node16"
     },
     "include": ["src/**/*"],
-    "exclude": ["src/tests/**/*"]
+    "exclude": ["src/tests/**/*", "src/mocks/**/*"]
 }
