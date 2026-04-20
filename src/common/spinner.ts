@@ -31,6 +31,9 @@ export class Spinner {
         this.interval = setInterval(() => {
             const frame = Spinner.frames[this.currentFrame];
             process.stdout.write(
+                "\r" + " ".repeat(process.stdout.columns || 80) + "\r"
+            );
+            process.stdout.write(
                 `\r${colorsLite.boldBlue}${frame}${colorsLite.reset} ${this.message}`
             );
             this.currentFrame = (this.currentFrame + 1) % Spinner.frames.length;
