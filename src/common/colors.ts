@@ -52,7 +52,9 @@ export class Colors {
         if (Object.keys(options).length > 1) {
             throw new Error("Too many options for setColor");
         }
-        const opts = [];
+
+        const opts: string[] = [];
+
         switch (true) {
             case typeof options.colors !== "undefined":
                 opts.push(formatOptions.colors[options.colors as keyof object]);
@@ -73,9 +75,13 @@ export class Colors {
                 );
                 break;
             default:
-                opts.push("");
                 break;
         }
+
+        if (opts.length === 0) {
+            return text;
+        }
+
         const proccessedOptions = opts.join().replaceAll(",", "");
         return proccessedOptions + text + formatOptions.reset;
     }

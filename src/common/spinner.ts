@@ -22,12 +22,16 @@ export class Spinner {
             return;
         }
 
+        // hide cursor
+        process.stdout.write("\x1b[?25l");
+
         this.message = message || this.message;
         this.currentFrame = 0;
         this.isRunning = true;
 
         process.stdout.write("\r");
 
+        // ansi for clearing current line: \x1b[2K
         this.interval = setInterval(() => {
             const frame = Spinner.frames[this.currentFrame];
             process.stdout.write(
@@ -45,6 +49,9 @@ export class Spinner {
             clearInterval(this.interval);
             this.interval = null;
         }
+
+        // show cursor
+        process.stdout.write("\x1b[?25h");
 
         this.isRunning = false;
 
