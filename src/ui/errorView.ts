@@ -2,19 +2,19 @@ import { renderHeader } from "./header.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { prompt } from "../common/prompt.js";
-import { renderMainView } from "./mainView.js";
+import { globalErrorState } from "../router.js";
 
-export async function renderErrorView(reason: unknown) {
+export async function renderErrorView(): Promise<null> {
+    const globalErr = globalErrorState.get();
     const error: { name: string; message: string } = {
         name: "Unknown Error",
         message: "An unexpected error occurred!",
     };
-    if (reason instanceof Error) {
-        error.name = reason.name;
-        error.message = reason.message;
+    if (globalErr instanceof Error) {
+        error.name = globalErr.name;
+        error.message = globalErr.message;
     }
 
-    console.clear();
     renderHeader(Colors.setColor("\nFatal Error", { backgrounds: "red" }));
     // TODO: this is yellow for some reason
     stdout.write(Colors.setColor("Fatal Error\n", { bolds: "red" }));
@@ -27,14 +27,8 @@ ${Colors.setColor(error.message, { backgrounds: "red" })}
 \n`);
 
     const answer = await prompt(
-        Colors.setColor("Press ENTER to go back", { underlines: "blue" })
+        Colors.setColor("Press ENTER to quit", { underlines: "blue" })
     );
 
-    switch (true) {
-        case answer === "":
-            renderMainView();
-            break;
-        default:
-            process.exit(1);
-    }
+    return null;
 }

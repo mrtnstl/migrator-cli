@@ -1,11 +1,9 @@
 import { renderHeader } from "./header.js";
-import { renderMainView } from "./mainView.js";
 import { Colors } from "../common/colors.js";
 import { stdout } from "node:process";
-import { prompt } from "../common/prompt.js";
+import { pressKey } from "../common/prompt.js";
 
-export async function renderUserGuideView() {
-    console.clear();
+export async function renderUserGuideView(): Promise<string> {
     renderHeader();
     stdout.write(Colors.setColor("User Guide\n", { bolds: "white" }));
 
@@ -22,15 +20,12 @@ and how you can incorporate it in your day to day work.
 
 \n`);
 
-    const answer = await prompt(
+    const answer = await pressKey(
         Colors.setColor("Press ENTER to go back", { underlines: "blue" })
     );
 
-    switch (true) {
-        case answer === "":
-            renderMainView();
-            break;
-        default:
-            process.exit(1);
+    if (answer) {
+        return "main";
     }
+    return "userguide";
 }
