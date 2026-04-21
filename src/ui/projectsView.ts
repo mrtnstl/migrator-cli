@@ -14,8 +14,8 @@ export async function renderProjectsView(): Promise<string> {
     stdout.write(Colors.setColor("Projects\n", { bolds: "white" }));
     stdout.write("\n");
 
-    let projectsQuery = await selectAllProjects();
-    let projectsList = projectsQuery.map((project: TProject) => ({
+    const projectsQuery = await selectAllProjects();
+    const projectsList = projectsQuery.map((project: TProject) => ({
         name: `[${project.id}] ${project.name}`,
         value: String(project.id),
         description: undefined,

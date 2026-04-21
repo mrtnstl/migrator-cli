@@ -11,7 +11,7 @@ import {
 // simple user input prompt
 export function input(message: string): Promise<string> {
     return new Promise(resolve => {
-        stdin.isTTY && stdin.setRawMode(false);
+        if (stdin.isTTY) stdin.setRawMode(false);
 
         stdin.write(message);
 
@@ -27,7 +27,7 @@ export function input(message: string): Promise<string> {
 // confirmation prompt (Y/n)
 export function confirm(message: string): Promise<boolean> {
     return new Promise(resolve => {
-        stdin.isTTY && stdin.setRawMode(false);
+        if (stdin.isTTY) stdin.setRawMode(false);
 
         stdin.write(message);
 
@@ -124,7 +124,7 @@ export function select(options: TSelectConfig): Promise<string> {
             const optionName =
                 typeof option === "object" ? option.name : option;
 
-            let line = "INVALID_LINE";
+            let line;
 
             if (typeof option === "string") {
                 line = option;
@@ -153,18 +153,22 @@ export function select(options: TSelectConfig): Promise<string> {
 
         const handler = (_str: string, key: readline.Key) => {
             if (key.name === "up" && selected > 0) {
-                typeof options.options[selected - 1] === "object"
-                    ? selected--
-                    : (selected = selected - 2);
+                if (typeof options.options[selected - 1] === "object") {
+                    selected--;
+                } else {
+                    selected = selected - 2;
+                }
 
                 renderMenu();
             } else if (
                 key.name === "down" &&
                 selected < options.options.length - 1
             ) {
-                typeof options.options[selected + 1] === "object"
-                    ? selected++
-                    : (selected = selected + 2);
+                if (typeof options.options[selected + 1] === "object") {
+                    selected++;
+                } else {
+                    selected = selected + 2;
+                }
 
                 renderMenu();
             } else if (key.name === "return") {

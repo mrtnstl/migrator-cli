@@ -23,9 +23,9 @@ views.set("error", renderErrorView);
 views.set("userguide", renderUserGuideView);
 views.set("createproject", renderCreateProjectView);
 
-export let globalErrorState = new ErrorState();
-export let selectedProjectIDState = new SelectedProjectIDState();
-export let migrationState = new MigrationState();
+export const globalErrorState = new ErrorState();
+export const selectedProjectIDState = new SelectedProjectIDState();
+export const migrationState = new MigrationState();
 
 export async function start() {
     let currentView: TViewName = "main";

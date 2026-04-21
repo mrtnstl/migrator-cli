@@ -1,8 +1,6 @@
-import { TProject } from "../../types/index.js";
-
 interface State {
-    set(newState: any): void;
-    get(): any;
+    set(newState: unknown): void;
+    get(): unknown;
 }
 
 export class ErrorState implements State {
