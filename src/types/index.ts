@@ -32,3 +32,10 @@ export interface IView {
 }
 
 export type TPressKeyOptions = "return";
+
+// states
+
+export type TAppLevelNotification = {
+    type: "error" | "success" | "warning" | "info";
+    message: string;
+};
