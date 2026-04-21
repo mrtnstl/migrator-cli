@@ -1,14 +1,16 @@
+import { TAppLevelNotification } from "../../types/index.js";
+
 interface State {
     set(newState: unknown): void;
     get(): unknown;
 }
 
 export class ErrorState implements State {
-    private state: unknown;
+    private state: Error | null;
     constructor() {
         this.state = null;
     }
-    set(newState: unknown) {
+    set(newState: Error | null) {
         this.state = newState;
     }
     get() {
@@ -16,12 +18,12 @@ export class ErrorState implements State {
     }
 }
 
-export class MigrationState implements State {
-    private state: string;
+export class AppLevelNotificationState implements State {
+    private state: TAppLevelNotification;
     constructor() {
-        this.state = "";
+        this.state = { type: "info", message: "_" };
     }
-    set(newState: string) {
+    set(newState: TAppLevelNotification) {
         this.state = newState;
     }
     get() {
@@ -34,7 +36,7 @@ export class SelectedProjectIDState implements State {
     constructor() {
         this.state = null;
     }
-    set(newState: number) {
+    set(newState: number | null) {
         this.state = newState;
     }
     get() {

@@ -10,9 +10,10 @@ import { renderProjectView } from "./ui/projectView.js";
 import { renderUserGuideView } from "./ui/userGuideView.js";
 import {
     ErrorState,
-    MigrationState,
+    AppLevelNotificationState,
     SelectedProjectIDState,
 } from "./internals/state/globalStates.js";
+import { ensureError } from "./common/errors.js";
 
 const views = new Map<string, () => Promise<string | null>>();
 
@@ -25,15 +26,12 @@ views.set("createproject", renderCreateProjectView);
 
 export const globalErrorState = new ErrorState();
 export const selectedProjectIDState = new SelectedProjectIDState();
-export const migrationState = new MigrationState();
+export const appLevelNotificationState = new AppLevelNotificationState();
 
 export async function start() {
     let currentView: TViewName = "main";
 
     readline.emitKeypressEvents(stdin);
-    //if (stdin.isTTY) {
-    //    stdin.setRawMode(true);
-    //}
 
     try {
         while (currentView !== "exit") {
@@ -44,10 +42,6 @@ export async function start() {
                 //continue;
                 throw new Error(`Unknown view! ${currentView}`);
             }
-
-            //if (stdin.isTTY && !stdin.isRaw) {
-            //    stdin.setRawMode(true);
-            //}
 
             stdin.write("\x1b[2J");
             readline.cursorTo(stdin, 0, 0);
@@ -63,9 +57,11 @@ export async function start() {
             }
         }
     } catch (err) {
-        globalErrorState.set(err);
+        globalErrorState.set(ensureError(err));
+
         stdin.write("\x1b[2J");
         readline.cursorTo(stdin, 0, 0);
+
         await renderErrorView();
     } finally {
         if (stdin.isTTY) {

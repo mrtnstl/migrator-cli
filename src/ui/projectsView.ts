@@ -1,9 +1,9 @@
+import { stdout } from "node:process";
 import { renderHeader } from "./header.js";
 import {
     searchProjectsByName,
     selectAllProjects,
 } from "../internals/db/database.js";
-import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { TProject } from "../types/index.js";
 import { selectedProjectIDState } from "../router.js";
@@ -12,7 +12,6 @@ import { select } from "../common/prompt.js";
 export async function renderProjectsView(): Promise<string> {
     renderHeader();
     stdout.write(Colors.setColor("Projects\n", { bolds: "white" }));
-    stdout.write("\n");
 
     const projectsQuery = await selectAllProjects();
     const projectsList = projectsQuery.map((project: TProject) => ({
