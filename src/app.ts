@@ -1,11 +1,5 @@
 import { insertNewProjects } from "./internals/db/database.js";
-import { renderErrorView } from "./ui/errorView.js";
-import { renderMainView } from "./ui/mainView.js";
-
-process.on("unhandledRejection", (reason, promise) => {
-    console.error("Unhandled Rejection at:", promise, "reason:", reason);
-    renderErrorView(reason);
-});
+import { start } from "./router.js";
 
 // dummy projects for development
 insertNewProjects([
@@ -21,5 +15,4 @@ insertNewProjects([
     ],
 ]);
 
-// main view, app entrypoint
-renderMainView();
+start();
