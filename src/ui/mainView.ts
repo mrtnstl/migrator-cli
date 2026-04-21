@@ -1,56 +1,31 @@
-import { select, Separator } from "@inquirer/prompts";
+import { createDivider, select } from "../common/prompt.js";
 import { renderHeader } from "./header.js";
-import { renderProjectsView } from "./projectsView.js";
-import { renderUserGuideView } from "./userGuideView.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 
-export async function renderMainView() {
-    console.clear();
+export async function renderMainView(): Promise<string | null> {
     renderHeader();
     stdout.write(Colors.setColor("Main Menu\n", { bolds: "white" }));
+    stdout.write("\n");
 
     const answer = await select({
-        message: "",
-        choices: [
+        message: "", //Choose an option\n
+        options: [
             {
                 name: "projects",
                 value: "projects",
-                description: undefined,
             },
             {
                 name: "user guide",
                 value: "userguide",
-                description: undefined,
             },
-            new Separator("__________"),
+            createDivider(),
             {
                 name: "exit",
                 value: "exit",
-                description: undefined,
             },
         ],
-        theme: {
-            prefix: { idle: "", done: "" },
-            style: {
-                keysHelpTip: () => "",
-                message: () => "",
-                description: () => "",
-            },
-        },
     });
 
-    switch (answer) {
-        case "projects":
-            renderProjectsView();
-            break;
-        case "userguide":
-            renderUserGuideView();
-            break;
-        case "exit":
-            console.clear();
-            return;
-        default:
-            process.exit();
-    }
+    return answer;
 }

@@ -1,20 +1,18 @@
-import { search } from "@inquirer/prompts";
 import { renderHeader } from "./header.js";
-import { renderMainView } from "./mainView.js";
 import {
     searchProjectsByName,
     selectAllProjects,
 } from "../internals/db/database.js";
 import { stdout } from "node:process";
 import { Colors } from "../common/colors.js";
-import { renderCreateProjectView } from "./createProjectView.js";
-import { renderProjectView } from "./projectView.js";
 import { TProject } from "../types/index.js";
+import { selectedProjectIDState } from "../router.js";
+import { select } from "../common/prompt.js";
 
-export async function renderProjectsView() {
-    console.clear();
+export async function renderProjectsView(): Promise<string> {
     renderHeader();
     stdout.write(Colors.setColor("Projects\n", { bolds: "white" }));
+    stdout.write("\n");
 
     let projectsQuery = await selectAllProjects();
     let projectsList = projectsQuery.map((project: TProject) => ({
@@ -23,73 +21,26 @@ export async function renderProjectsView() {
         description: undefined,
     }));
 
-    const answer = await search({
-        message: "",
-        source: async (input, { signal }) => {
-            if (!input) {
-                return [
-                    {
-                        name: "back to menu",
-                        value: "back",
-                        description: undefined,
-                    },
-                    {
-                        name: "create new project",
-                        value: "create",
-                        description: undefined,
-                    },
-                    ...projectsList,
-                ];
-            } else {
-                projectsQuery = await searchProjectsByName(input);
-
-                projectsList = projectsQuery.map(project => ({
-                    name: `[${project.id}] ${project.name}`,
-                    value: String(project.id),
-                    description: undefined,
-                }));
-
-                return [
-                    {
-                        name: "back to menu",
-                        value: "back",
-                        description: undefined,
-                    },
-                    {
-                        name: "create new project",
-                        value: "create",
-                        description: undefined,
-                    },
-                    ...projectsList,
-                ];
-            }
-        },
-        theme: {
-            prefix: { idle: "", done: "" },
-            style: {
-                keysHelpTip: () => "",
-                message: () => "search:",
-                description: () => "",
+    const answer = await select({
+        message: "", //Choose a project\n
+        options: [
+            {
+                name: "back to menu",
+                value: "main",
+                description: undefined,
             },
-        },
+            {
+                name: "create new project",
+                value: "createproject",
+                description: undefined,
+            },
+            ...projectsList,
+        ],
     });
 
-    switch (true) {
-        case answer === "back":
-            renderMainView();
-            break;
-        case answer === "create":
-            renderCreateProjectView();
-            break;
-        case answer !== "":
-            renderProjectView(
-                parseInt(answer),
-                Colors.setColor("\n_", {
-                    backgrounds: "white",
-                })
-            );
-            break;
-        default:
-            process.exit(1);
+    if (!["main", "createproject"].includes(answer)) {
+        selectedProjectIDState.set(parseInt(answer));
+        return "project";
     }
+    return answer;
 }

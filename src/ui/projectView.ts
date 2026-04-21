@@ -1,4 +1,4 @@
-import { select, Separator } from "@inquirer/prompts";
+import { select, createDivider } from "../common/prompt.js";
 import { renderHeader } from "./header.js";
 import { selectProjectByID } from "../internals/db/database.js";
 import { stdout } from "node:process";
@@ -9,16 +9,18 @@ import { Spinner } from "../common/spinner.js";
 import { prompt } from "../common/prompt.js";
 import { TProject } from "../types/index.js";
 import { ensureError } from "../common/errors.js";
+import { migrationState, selectedProjectIDState } from "../router.js";
 
-export async function renderProjectView(
-    projectID: number,
-    migrationStatus: string
-) {
+export async function renderProjectView(): Promise<string> {
+    const projectID = selectedProjectIDState.get();
+    const migrationStatus = migrationState.get();
+
     const project: TProject = await selectProjectByID(projectID);
 
-    console.clear();
     renderHeader(migrationStatus);
     stdout.write(Colors.setColor(`${project.name}\n`, { bolds: "white" }));
+    stdout.write("\n");
+
     console.table({
         id: project.id,
         name: project.name,
@@ -29,48 +31,42 @@ export async function renderProjectView(
     });
 
     const answer = await select({
-        message: "",
-        choices: [
-            new Separator("migration:"),
+        message: "", //Select an option\n
+        options: [
+            createDivider("migration:"),
             {
                 name: "up",
                 value: "up",
-                description: undefined,
             },
             {
                 name: "down",
                 value: "down",
-                description: undefined,
             },
-            new Separator("project:"),
+            createDivider("project:"),
             {
                 name: "settings",
-                value: "settings",
-                description: undefined,
+                value: "projectsettings",
             },
-            new Separator("__________"),
+            createDivider("__________"),
             {
                 name: "back to projects",
-                value: "back",
-                description: undefined,
+                value: "projects",
             },
         ],
-        theme: {
-            prefix: { idle: "", done: "" },
-            style: {
-                keysHelpTip: () => "",
-                message: () => "",
-                description: () => "",
-            },
-        },
     });
 
+    if (["projects", "projectsettings"].includes(answer)) {
+        return answer;
+    } else {
+        return "NOT_IMPLEMENTED!!!";
+    }
+    /*
     switch (true) {
         case answer === "up":
             try {
                 await runMigration(projectID, "up");
 
-                renderProjectView(
+                await renderProjectView(
                     projectID,
                     Colors.setColor("\nMigrated successfully (up)", {
                         backgrounds: "green",
@@ -89,7 +85,7 @@ export async function renderProjectView(
                     errorMessage =
                         "Failed to open migration file! No file found with the appropriate name.";
                 }
-                renderProjectView(
+                await renderProjectView(
                     projectID,
                     Colors.setColor(
                         `\nERROR: ${errorMessage || "An unexpected error occurred!"}`,
@@ -104,7 +100,7 @@ export async function renderProjectView(
             try {
                 await runMigration(projectID, "down");
 
-                renderProjectView(
+                await renderProjectView(
                     projectID,
                     Colors.setColor("\nMigrated successfully (down)", {
                         backgrounds: "green",
@@ -123,7 +119,7 @@ export async function renderProjectView(
                     errorMessage =
                         "Failed to open migration file! No file found with the appropriate name.";
                 }
-                renderProjectView(
+                await renderProjectView(
                     projectID,
                     Colors.setColor(
                         `\nERROR: ${errorMessage || "An unexpected error occurred!"}`,
@@ -135,7 +131,7 @@ export async function renderProjectView(
                 break;
             }
         case answer === "settings":
-            /*const spinner = new Spinner(
+            const spinner = new Spinner(
                 Colors.setColor("Loadin' some shi...", { backgrounds: "white" })
             );
             spinner.start();
@@ -143,8 +139,8 @@ export async function renderProjectView(
             const messageChangeInterval = setInterval(() => {
                 const messages: string[] = [
                     "You almost there!",
-                    "Just a sec. bro...",
                     "Don't be so hasty, bigboss.",
+                    "Just a sec. bro...",
                 ];
                 spinner.setMessage(messages[messageIdx]);
                 messageIdx = (messageIdx + 1) % messages.length;
@@ -160,7 +156,7 @@ export async function renderProjectView(
 
                 switch (true) {
                     case answer === "":
-                        renderProjectView(
+                        await renderProjectView(
                             projectID,
                             Colors.setColor("\n_", {
                                 backgrounds: "white",
@@ -171,12 +167,12 @@ export async function renderProjectView(
                         process.exit(1);
                 }
             }, 8000);
-            */
+
             break;
         case answer === "back":
-            renderProjectsView();
+            await renderProjectsView();
             break;
         default:
             process.exit(1);
-    }
+    }*/
 }
