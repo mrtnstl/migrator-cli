@@ -48,4 +48,7 @@ export function renderHeader() {
     stdout.write("\n");
     stdout.write(statusMessage);
     stdout.write("\n\n");
+
+    globalErrorState.set(null);
+    appLevelNotificationState.set({ type: "info", message: "_" });
 }

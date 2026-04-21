@@ -6,7 +6,11 @@ import { Colors } from "../common/colors.js";
 import { runMigration } from "../internals/runner.js";
 import { TProject, TViewName } from "../types/index.js";
 import { ensureError } from "../common/errors.js";
-import { globalErrorState, selectedProjectIDState } from "../router.js";
+import {
+    appLevelNotificationState,
+    globalErrorState,
+    selectedProjectIDState,
+} from "../router.js";
 
 export async function renderProjectView(): Promise<TViewName> {
     const projectID = selectedProjectIDState.get();
@@ -59,6 +63,10 @@ export async function renderProjectView(): Promise<TViewName> {
         try {
             await runMigration(projectID, "up");
 
+            appLevelNotificationState.set({
+                type: "success",
+                message: "Migrated successfully",
+            });
             return "project";
         } catch (err: unknown) {
             const formattedErr = ensureError(err);
@@ -77,6 +85,10 @@ export async function renderProjectView(): Promise<TViewName> {
     } else if (answer === "down") {
         try {
             await runMigration(projectID, "down");
+            appLevelNotificationState.set({
+                type: "success",
+                message: "Migrated successfully",
+            });
 
             return "project";
         } catch (err: unknown) {
