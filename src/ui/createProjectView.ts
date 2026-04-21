@@ -1,6 +1,6 @@
+import { stdout } from "node:process";
 import { input, confirm } from "../common/prompt.js";
 import { renderHeader } from "./header.js";
-import { stdin, stdout } from "node:process";
 import { Colors } from "../common/colors.js";
 import { insertNewProjects } from "../internals/db/database.js";
 

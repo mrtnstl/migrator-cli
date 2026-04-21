@@ -1,6 +1,6 @@
+import { stdout } from "node:process";
 import { renderHeader } from "./header.js";
 import { Colors } from "../common/colors.js";
-import { stdout } from "node:process";
 import { pressKey } from "../common/prompt.js";
 
 export async function renderUserGuideView(): Promise<string> {

@@ -1,7 +1,7 @@
-import { renderHeader } from "./header.js";
 import { stdout } from "node:process";
+import { renderHeader } from "./header.js";
 import { Colors } from "../common/colors.js";
-import { prompt } from "../common/prompt.js";
+import { pressKey } from "../common/prompt.js";
 import { globalErrorState } from "../router.js";
 
 export async function renderErrorView(): Promise<null> {
@@ -15,7 +15,7 @@ export async function renderErrorView(): Promise<null> {
         error.message = globalErr.message;
     }
 
-    renderHeader(Colors.setColor("\nFatal Error", { backgrounds: "red" }));
+    renderHeader();
     // TODO: this is yellow for some reason
     stdout.write(Colors.setColor("Fatal Error\n", { bolds: "red" }));
 
@@ -26,7 +26,7 @@ ${Colors.setColor(error.message, { backgrounds: "red" })}
 
 \n`);
 
-    const answer = await prompt(
+    await pressKey(
         Colors.setColor("Press ENTER to quit", { underlines: "blue" })
     );
 
