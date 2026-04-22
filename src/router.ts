@@ -1,5 +1,5 @@
 import readline from "node:readline";
-import { stdin } from "node:process";
+import { stdin, stdout } from "node:process";
 
 import { TViewName } from "./types/index.js";
 import { renderCreateProjectView } from "./ui/createProjectView.js";
@@ -69,5 +69,6 @@ export async function start() {
         }
         stdin.pause();
         stdin.removeAllListeners("keypress");
+        stdout.write("\x1b[?25h");
     }
 }

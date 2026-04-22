@@ -12,6 +12,9 @@ export async function runMigration(
 ): Promise<void> {
     // getting project data (conn. str., migration location, ...)
     const project: TProject = await selectProjectByID(projectID);
+    if (!project) {
+        throw new Error(`Project with the ID ${projectID} doesn't exist!`);
+    }
 
     // setup DB connection
     const db = getConnection(project.db_conn_str);

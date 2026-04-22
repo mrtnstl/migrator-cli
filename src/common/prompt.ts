@@ -52,6 +52,9 @@ export function pressKey(
             stdin.setRawMode(false);
             stdin.removeAllListeners("keypress");
             stdout.write("\n");
+
+            // show cursor
+            stdout.write("\x1b[?25h");
         }
     }
 
@@ -60,6 +63,10 @@ export function pressKey(
             stdin.setRawMode(true);
             stdin.removeAllListeners("keypress");
         }
+
+        // hide cursor
+        stdout.write("\x1b[?25l");
+
         stdout.write(message);
 
         const handler = (_str: string, key: readline.Key) => {
@@ -144,12 +151,18 @@ export function select(options: TSelectConfig): Promise<string> {
     function cleanup() {
         stdin.removeAllListeners("keypress");
         stdout.write("\n");
+
+        // show cursor
+        stdout.write("\x1b[?25h");
     }
 
     return new Promise((resolve, reject) => {
         if (stdin.isTTY) {
             stdin.setRawMode(true);
         }
+
+        // hide cursor
+        stdout.write("\x1b[?25l");
 
         const handler = (_str: string, key: readline.Key) => {
             if (key.name === "up" && selected > 0) {
