@@ -30,18 +30,8 @@ export class FileReader implements Reader {
                 }
             );
 
-            const directionValue = (): number => {
-                if (direction === "up") {
-                    return 1;
-                } else if (direction === "down") {
-                    return 0;
-                } else {
-                    throw new Error(
-                        "An error occurred while calculating migration direction value!"
-                    );
-                }
-            };
-            const nextVersion = currentVersion + directionValue();
+            const nextVersion = currentVersion + (direction === "up" ? 1 : 0);
+
             const selectedMigration = migrationsArray.find(
                 record => record.v === nextVersion && record.t === direction
             );
@@ -58,10 +48,10 @@ export class FileReader implements Reader {
         } catch (err: unknown) {
             if (
                 typeof err === "object" &&
-                Object.hasOwn(err as object, "code")
+                Object.hasOwn(err as object, "code") &&
+                ((err as { code: string }).code.includes("ENOENT") ||
+                    (err as { code: string }).code.includes("EACCES"))
             ) {
-                (err as { code: string }).code.includes("ENOENT");
-
                 throw ensureError(
                     new Error(
                         "File not found or insufficient rights to read directory!",

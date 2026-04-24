@@ -71,4 +71,23 @@ describe("FileReader", () => {
             );
         }
     });
+
+    it("should throw, when there is no file in migrations folder", async () => {
+        let err;
+        try {
+            await fr.readMigrationFile(
+                migrationsDir.slice(migrationsDir.lastIndexOf("/")) +
+                    "migrationsEmpty",
+                0,
+                "up"
+            );
+        } catch (e) {
+            err = e;
+        } finally {
+            expect(err).toBeInstanceOf(Error);
+            expect((err as Error).message).toBe(
+                "File not found or insufficient rights to read directory!"
+            );
+        }
+    });
 });
