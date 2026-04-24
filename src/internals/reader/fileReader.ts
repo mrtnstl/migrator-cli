@@ -56,6 +56,20 @@ export class FileReader implements Reader {
 
             return migrationContent;
         } catch (err: unknown) {
+            if (
+                typeof err === "object" &&
+                Object.hasOwn(err as object, "code")
+            ) {
+                (err as { code: string }).code.includes("ENOENT");
+
+                throw ensureError(
+                    new Error(
+                        "File not found or insufficient rights to read directory!",
+                        { cause: err }
+                    )
+                );
+            }
+
             throw ensureError(err);
         }
     }
