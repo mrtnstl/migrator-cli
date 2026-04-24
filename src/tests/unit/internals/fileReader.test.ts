@@ -1,16 +1,23 @@
-import { homedir } from "os";
+import { homedir, userInfo } from "os";
 import { FileReader } from "../../../internals/reader/fileReader";
 
 describe("FileReader", () => {
     let fr: FileReader;
+    let migrationsDir: string;
+    let isGHARunner: boolean;
 
     beforeAll(() => {
         fr = new FileReader();
+        isGHARunner = userInfo().username === "runner";
+        migrationsDir = isGHARunner
+            ? homedir() + "/work/migrator-cli/migrator-cli/src/mocks/migrations"
+            : homedir() +
+              "/Projects/pet/db-migration-tool/src/mocks/migrations";
     });
 
     it("should return the content of the migration file of the appropriate version", async () => {
         const migrationFileContent = await fr.readMigrationFile(
-            `${homedir()}/Projects/pet/db-migration-tool/src/mocks/migrations`,
+            migrationsDir,
             0,
             "up"
         );
@@ -22,11 +29,7 @@ describe("FileReader", () => {
     it("should throw, when the migration path ends with '/'", async () => {
         let err;
         try {
-            await fr.readMigrationFile(
-                `${homedir()}/Projects/pet/db-migration-tool/src/mocks/migrations/`,
-                0,
-                "up"
-            );
+            await fr.readMigrationFile(migrationsDir + "/", 0, "up");
         } catch (e) {
             err = e;
         } finally {
@@ -58,11 +61,7 @@ describe("FileReader", () => {
     it("should throw, when there is no corresponding direction for the provided migration version", async () => {
         let err;
         try {
-            await fr.readMigrationFile(
-                `${homedir()}/Projects/pet/db-migration-tool/src/mocks/migrations`,
-                99,
-                "up"
-            );
+            await fr.readMigrationFile(migrationsDir, 99, "up");
         } catch (e) {
             err = e;
         } finally {
