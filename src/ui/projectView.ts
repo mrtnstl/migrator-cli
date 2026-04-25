@@ -11,6 +11,7 @@ import {
     globalErrorState,
     selectedProjectIDState,
 } from "../router.js";
+import { getMigrationsData } from "../internals/dbMetaGetter.js";
 
 export async function renderProjectView(): Promise<TViewName> {
     const projectID = selectedProjectIDState.get();
@@ -21,6 +22,19 @@ export async function renderProjectView(): Promise<TViewName> {
     }
 
     const project: TProject = await selectProjectByID(projectID);
+    if (!project) {
+        throw new Error(`Project with the ID ${projectID} doesn't exist!`);
+    }
+
+    try {
+        const migrationData = await getMigrationsData(project);
+        appLevelNotificationState.set({
+            type: "info",
+            message: `current version: ${migrationData?.version}, last updated at: ${migrationData?.updated_at.toISOString()}`,
+        });
+    } catch (err) {
+        globalErrorState.set(ensureError(err));
+    }
 
     renderHeader();
     stdout.write(Colors.setColor(`${project.name}\n`, { bolds: "white" }));
