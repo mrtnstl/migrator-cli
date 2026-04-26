@@ -2,7 +2,7 @@
 
 CLI tool for centralized DB migration management.
 
-Currently supporting `postgres`, will add further drivers, as i need them.
+Currently supporting `postgres` and `sqlite`, will add further drivers, as i need them.
 
 #### (temporary, low res demo gif)
 
