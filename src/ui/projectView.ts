@@ -28,9 +28,16 @@ export async function renderProjectView(): Promise<TViewName> {
 
     try {
         const migrationData = await getMigrationsData(project);
+        const migrationDataAsStr = `current version: ${migrationData.version}, last updated at: ${migrationData.updated_at.toISOString()}${migrationData.is_dirty ? " and the database is dirty!" : ""}`;
+
+        const currentNotification = appLevelNotificationState.get();
+        const notifType = currentNotification.type;
+        const notifMessage =
+            currentNotification.message + ", " + migrationDataAsStr;
+
         appLevelNotificationState.set({
-            type: "info",
-            message: `current version: ${migrationData?.version}, last updated at: ${migrationData?.updated_at.toISOString()}`,
+            type: notifType,
+            message: notifMessage,
         });
     } catch (err) {
         globalErrorState.set(ensureError(err));

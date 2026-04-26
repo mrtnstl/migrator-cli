@@ -1,6 +1,5 @@
 import { Client } from "pg";
 import { Connector } from "./connector.js";
-import { ensureError } from "../../common/errors.js";
 
 export class PostgresConnector implements Connector {
     private client: Client;

@@ -1,18 +1,14 @@
-import { insertNewProjects } from "./internals/db/database.js";
+//import { cwd } from "node:process";
+//import { insertNewProjects } from "./internals/db/database.js";
 import { start } from "./router.js";
 
 // dummy projects for development
-insertNewProjects([
+/*insertNewProjects([
     [
-        "important-backend",
-        "postgres:some@dummy:commection/string",
-        "migrations/on/local/machine",
+        "test-sqlite-db",
+        `sqlite://${cwd()}/src/mocks/test.db`,
+        cwd() + "/src/mocks/migrations/sqlite",
     ],
-    [
-        "some-bobby-project",
-        "sqlite:some@dummy:commection/string",
-        "migrations/on/local/machine",
-    ],
-]);
+]);*/
 
 start();
