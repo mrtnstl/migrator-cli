@@ -2,15 +2,22 @@ import { DatabaseSync, SQLInputValue } from "node:sqlite";
 import { TProject } from "../../types/index.js";
 import { cwd } from "node:process";
 
-const db = new DatabaseSync(`${cwd() + "/migrator_storage.db"}`); // :memory:
-db.exec(`
-    CREATE TABLE IF NOT EXISTS data(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        db_conn_str TEXT,
-        migrations_location TEXT
-    ) STRICT;
-`);
+const db = new DatabaseSync(
+    process.env.NODE_ENV === "test"
+        ? `${cwd() + "/migrator_storage-test.db"}`
+        : `${cwd() + "/migrator_storage.db"}`
+);
+
+export function initDB(): void {
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS data(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            db_conn_str TEXT,
+            migrations_location TEXT
+        ) STRICT;
+    `);
+}
 
 type TNewProject = [string, string, string];
 
