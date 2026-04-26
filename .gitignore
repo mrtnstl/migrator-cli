@@ -2,3 +2,4 @@
 node_modules
 *.temp.*
 dist
+migrator_storage.db

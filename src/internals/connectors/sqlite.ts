@@ -1,23 +1,23 @@
-import { Client } from "pg";
+import { DatabaseSync } from "node:sqlite";
 import { Connector } from "./connector.js";
 
-export class PostgresConnector implements Connector {
-    private client: Client;
-
+export class SqliteConnector implements Connector {
+    private client;
+    // connStr is the path
     constructor(connStr: string) {
-        this.client = new Client({ connectionString: connStr });
+        this.client = new DatabaseSync(connStr);
     }
 
     async disconnect(): Promise<void> {
         if (this.client) {
-            await this.client.end();
+            this.client.close();
         }
         return;
     }
 
     async getClient() {
         try {
-            return this.client.connect();
+            return this.client;
         } catch (err: unknown) {
             throw new Error("Database connection error!", {
                 cause: err,

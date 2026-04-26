@@ -52,6 +52,7 @@ export async function start() {
                 currentView = "exit";
                 stdin.write("\x1b[2J");
                 readline.cursorTo(stdin, 0, 0);
+                process.exit(0);
             } else {
                 currentView = nextView as TViewName;
             }
