@@ -1,7 +1,8 @@
 import { DatabaseSync, SQLInputValue } from "node:sqlite";
 import { TProject } from "../../types/index.js";
+import { cwd } from "node:process";
 
-const db = new DatabaseSync(":memory:");
+const db = new DatabaseSync(`${cwd() + "/migrator_storage.db"}`); // :memory:
 db.exec(`
     CREATE TABLE IF NOT EXISTS data(
         id INTEGER PRIMARY KEY AUTOINCREMENT,
