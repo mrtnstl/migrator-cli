@@ -14,7 +14,11 @@ export class SqliteRepository implements Repository {
                 this.client.exec("BEGIN");
                 resolve();
             } catch (err) {
-                reject(err);
+                reject(
+                    ensureError(
+                        new Error("Transaction failed at BEGIN", { cause: err })
+                    )
+                );
             }
         });
     }
@@ -24,7 +28,13 @@ export class SqliteRepository implements Repository {
                 this.client.exec("COMMIT");
                 resolve();
             } catch (err) {
-                reject(err);
+                reject(
+                    ensureError(
+                        new Error("Transaction failed at COMMIT", {
+                            cause: err,
+                        })
+                    )
+                );
             }
         });
     }
@@ -34,7 +44,13 @@ export class SqliteRepository implements Repository {
                 this.client.exec("ROLLBACK");
                 resolve();
             } catch (err) {
-                reject(err);
+                reject(
+                    ensureError(
+                        new Error("Transaction failed at ROLLBACK", {
+                            cause: err,
+                        })
+                    )
+                );
             }
         });
     }
@@ -81,7 +97,6 @@ export class SqliteRepository implements Repository {
                     updated_at: new Date(result.updated_at),
                 });
             } catch (err: unknown) {
-                console.log(err);
                 const formattedError = ensureError(err);
                 if (
                     formattedError.message.includes(`no such table: migrations`)
@@ -96,8 +111,7 @@ export class SqliteRepository implements Repository {
                             `);
                     this.client.exec(`
                             INSERT INTO migrations (version) 
-                            VALUES (0) 
-                            RETURNING version, is_dirty, updated_at;
+                            VALUES (0);
                             `);
 
                     const stmt = this.client.prepare(`
@@ -129,8 +143,7 @@ export class SqliteRepository implements Repository {
                     `
                     UPDATE migrations 
                     SET version = ?, updated_at = CURRENT_TIMESTAMP 
-                    WHERE id = 1 
-                    RETURNING id, version, is_dirty, updated_at;
+                    WHERE id = 1;
                     `
                 );
 

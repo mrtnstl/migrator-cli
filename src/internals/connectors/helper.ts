@@ -9,6 +9,6 @@ export function getConnection(connStr: string): Connector {
         case "sqlite":
             return new SqliteConnector(connStr.split("://")[1]);
         default:
-            throw new Error("Invalid connection string!");
+            throw new Error(`Invalid connection string! ${connStr}`);
     }
 }
