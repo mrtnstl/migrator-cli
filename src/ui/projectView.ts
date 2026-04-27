@@ -1,7 +1,7 @@
 import { stdout } from "node:process";
 import { select, createDivider } from "../common/prompt.js";
 import { renderHeader } from "./header.js";
-import { selectProjectByID } from "../internals/db/database.js";
+import { insertLog, selectProjectByID } from "../internals/db/database.js";
 import { Colors } from "../common/colors.js";
 import { runMigration } from "../internals/runner.js";
 import { TProject, TViewName } from "../types/index.js";
@@ -67,6 +67,10 @@ export async function renderProjectView(): Promise<TViewName> {
             },
             createDivider("project:"),
             {
+                name: "logs",
+                value: "projectlogs",
+            },
+            {
                 name: "settings",
                 value: "projectsettings",
             },
@@ -78,7 +82,7 @@ export async function renderProjectView(): Promise<TViewName> {
         ],
     });
 
-    if (["projects", "projectsettings"].includes(answer)) {
+    if (["projects", "projectsettings", "projectlogs"].includes(answer)) {
         return answer as TViewName;
     } else if (answer === "up") {
         try {
@@ -86,6 +90,12 @@ export async function renderProjectView(): Promise<TViewName> {
 
             appLevelNotificationState.set({
                 type: "success",
+                message: "Migrated successfully",
+            });
+
+            await insertLog({
+                projectID: projectID,
+                event: "success",
                 message: "Migrated successfully",
             });
             return "project";
@@ -100,6 +110,11 @@ export async function renderProjectView(): Promise<TViewName> {
                     "Failed to open migration file! No file found with the appropriate name.";
             }
 
+            await insertLog({
+                projectID: projectID,
+                event: "error",
+                message: formattedErr.message,
+            });
             globalErrorState.set(formattedErr);
             return "project";
         }
@@ -111,6 +126,11 @@ export async function renderProjectView(): Promise<TViewName> {
                 message: "Migrated successfully",
             });
 
+            await insertLog({
+                projectID: projectID,
+                event: "success",
+                message: "Migrated successfully",
+            });
             return "project";
         } catch (err: unknown) {
             const formattedErr = ensureError(err);
@@ -123,6 +143,11 @@ export async function renderProjectView(): Promise<TViewName> {
                     "Failed to open migration file! No file found with the appropriate name.";
             }
 
+            await insertLog({
+                projectID: projectID,
+                event: "error",
+                message: formattedErr.message,
+            });
             globalErrorState.set(formattedErr);
             return "project";
         }

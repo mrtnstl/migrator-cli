@@ -1,5 +1,10 @@
-import { DatabaseSync, SQLInputValue } from "node:sqlite";
-import { TProject } from "../../types/index.js";
+import { DatabaseSync, SQLInputValue, SQLOutputValue } from "node:sqlite";
+import {
+    TNewProject,
+    TNewProjectLog,
+    TProject,
+    TProjectLog,
+} from "../../types/index.js";
 import { cwd } from "node:process";
 
 const db = new DatabaseSync(
@@ -12,18 +17,21 @@ export function initDB(): void {
     db.exec(`
         CREATE TABLE IF NOT EXISTS data(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT,
-            db_conn_str TEXT,
-            migrations_location TEXT
+            name TEXT NOT NULL,
+            db_conn_str TEXT NOT NULL,
+            migrations_location TEXT NOT NULL
+        ) STRICT;
+        CREATE TABLE IF NOT EXISTS logs (
+            logID INTEGER PRIMARY KEY AUTOINCREMENT,
+            projectID INTEGER,
+            event TEXT NOT NULL,
+            message TEXT NOT NULL,
+            occurred_at TEXT DEFAULT CURRENT_TIMESTAMP
         ) STRICT;
     `);
 }
 
-type TNewProject = [string, string, string];
-
-export function insertNewProjects(
-    values: TNewProject[]
-): Promise<void | Error> {
+export function insertNewProjects(values: TNewProject[]): Promise<void> {
     return new Promise((resolve, reject) => {
         try {
             const statement = db.prepare(
@@ -73,6 +81,46 @@ export function selectProjectByID(projectID: SQLInputValue): Promise<TProject> {
             const statement = db.prepare("SELECT * FROM data WHERE id = ?;");
             const result = statement.all(projectID)[0];
             resolve(result as TProject);
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+export function insertLog(log: TNewProjectLog): Promise<void> {
+    return new Promise((resolve, reject) => {
+        try {
+            const statement = db.prepare(
+                "INSERT INTO logs(projectID, event, message) VALUES (?, ?, ?);"
+            );
+
+            const data = Object.values({
+                projectID: log.projectID,
+                event: log.event,
+                message: log.message,
+            });
+
+            statement.run(...data);
+
+            resolve();
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+export function getLogsByProjectID(projectID: number): Promise<TProjectLog[]> {
+    return new Promise((resolve, reject) => {
+        try {
+            const statement = db.prepare(
+                `SELECT logID, projectID, event, message, occurred_at 
+                FROM logs 
+                WHERE projectID = ? 
+                ORDER BY logID ASC;`
+            );
+
+            const result = statement.all(projectID) as TProjectLog[];
+            resolve(result);
         } catch (err) {
             reject(err);
         }

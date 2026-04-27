@@ -8,6 +8,7 @@ import { renderMainView } from "./ui/mainView.js";
 import { renderProjectsView } from "./ui/projectsView.js";
 import { renderProjectView } from "./ui/projectView.js";
 import { renderUserGuideView } from "./ui/userGuideView.js";
+import { renderProjectLogsView } from "./ui/projectLogsView.js";
 import {
     ErrorState,
     AppLevelNotificationState,
@@ -20,6 +21,7 @@ const views = new Map<string, () => Promise<string | null>>();
 views.set("main", renderMainView);
 views.set("projects", renderProjectsView);
 views.set("project", renderProjectView);
+views.set("projectlogs", renderProjectLogsView);
 views.set("error", renderErrorView);
 views.set("userguide", renderUserGuideView);
 views.set("createproject", renderCreateProjectView);

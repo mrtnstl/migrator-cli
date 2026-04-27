@@ -21,6 +21,7 @@ export type TViewName =
     | "main"
     | "projects"
     | "project"
+    | "projectlogs"
     | "createproject"
     | "userguide"
     | "exit"
@@ -30,6 +31,27 @@ export interface IView {
     name: TViewName;
     render(): Promise<string | null>;
 }
+
+// new project
+
+export type TNewProject = [string, string, string];
+
+// project logs view
+
+export type TProjectLog = {
+    logID: number;
+    projectID: number;
+    event: "success" | "error";
+    message: string;
+    occurred_at: string;
+};
+export type TNewProjectLog = {
+    projectID: number;
+    event: "success" | "error";
+    message: string;
+};
+
+// pressKey prompt
 
 export type TPressKeyOptions = "return";
 
