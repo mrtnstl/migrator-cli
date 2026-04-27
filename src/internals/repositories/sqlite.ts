@@ -11,7 +11,7 @@ export class SqliteRepository implements Repository {
     beginTx(): Promise<void> {
         return new Promise((resolve, reject) => {
             try {
-                this.client.exec("BEGIN");
+                this.client.exec("BEGIN TRANSACTION;");
                 resolve();
             } catch (err) {
                 reject(
@@ -25,7 +25,7 @@ export class SqliteRepository implements Repository {
     commitTx(): Promise<void> {
         return new Promise((resolve, reject) => {
             try {
-                this.client.exec("COMMIT");
+                this.client.exec("COMMIT;");
                 resolve();
             } catch (err) {
                 reject(
@@ -41,7 +41,7 @@ export class SqliteRepository implements Repository {
     rollbackTx(): Promise<void> {
         return new Promise((resolve, reject) => {
             try {
-                this.client.exec("ROLLBACK");
+                this.client.exec("ROLLBACK;");
                 resolve();
             } catch (err) {
                 reject(

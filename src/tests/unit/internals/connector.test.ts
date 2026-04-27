@@ -1,6 +1,7 @@
 import { PostgresConnector } from "../../../internals/connectors/postgres";
 import { getConnection } from "../../../internals/connectors/helper";
 import { SqliteConnector } from "../../../internals/connectors/sqlite";
+import { DatabaseSync } from "node:sqlite";
 
 describe("getConnection", () => {
     it("should throw, when invalid protocol passed in connection string", () => {
@@ -27,5 +28,17 @@ describe("getConnection", () => {
         expect(connection).toHaveProperty("getClient");
         expect(connection).toHaveProperty("disconnect");
         expect(connection).toBeInstanceOf(SqliteConnector);
+    });
+});
+
+describe("SQLiteConnector", () => {
+    it("getClient() should return a DatabaseSync instance", async () => {
+        const sqliteConn = new SqliteConnector(":memory:");
+
+        const client = sqliteConn.getClient();
+
+        const disconnect = await sqliteConn.disconnect();
+
+        expect(client).toBeInstanceOf(DatabaseSync);
     });
 });
