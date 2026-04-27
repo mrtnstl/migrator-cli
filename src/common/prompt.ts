@@ -168,6 +168,11 @@ export function select(options: TSelectConfig): Promise<string> {
             if (key.name === "up" && selected > 0) {
                 if (typeof options.options[selected - 1] === "object") {
                     selected--;
+                } else if (
+                    selected === 1 &&
+                    typeof options.options[selected - 1] === "string"
+                ) {
+                    // do nothin
                 } else {
                     selected = selected - 2;
                 }
