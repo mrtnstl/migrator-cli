@@ -185,7 +185,7 @@ describe("Sqlite repository", () => {
 
     it("setMigrationVersion() should update version and and set updated_at to current timestamp", async () => {
         const mockStmt = {
-            run: jest.fn().mockReturnValueOnce({} as any),
+            run: jest.fn().mockReturnValueOnce({} as any), //eslint-disable-line
             all: jest.fn(),
         };
 
@@ -201,7 +201,7 @@ describe("Sqlite repository", () => {
     });
 
     it("setMigrationStateAsDirty() should set is_dirty to TRUE", async () => {
-        (mockClient.exec as jest.Mock).mockResolvedValueOnce({} as any);
+        (mockClient.exec as jest.Mock).mockResolvedValueOnce({} as any); //eslint-disable-line
 
         await repository.setMigrationStateAsDirty();
 
