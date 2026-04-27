@@ -9,13 +9,15 @@ export class SqliteConnector implements Connector {
     }
 
     async disconnect(): Promise<void> {
-        if (this.client) {
-            this.client.close();
-        }
-        return;
+        return new Promise(resolve => {
+            if (this.client) {
+                this.client.close();
+            }
+            resolve();
+        });
     }
 
-    async getClient() {
+    getClient() {
         try {
             return this.client;
         } catch (err: unknown) {

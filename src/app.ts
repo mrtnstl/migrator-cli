@@ -1,5 +1,6 @@
 //import { cwd } from "node:process";
 //import { insertNewProjects } from "./internals/db/database.js";
+import { initDB } from "./internals/db/database.js";
 import { start } from "./router.js";
 
 // dummy projects for development
@@ -10,5 +11,5 @@ import { start } from "./router.js";
         cwd() + "/src/mocks/migrations/sqlite",
     ],
 ]);*/
-
+initDB();
 start();
