@@ -41,7 +41,7 @@ export function renderHeader() {
     stdout.write("\n");
     stdout.write(
         Colors.setColor(
-            "=>=>=>=>=>=>=>=>=>=> Migrator v0.0.1 - Centralized database migration handler =>=>=>=>=>=>=>=>=>=>=>",
+            "=>=>=>=>=>=>=>=>=>=> Migrator v0.1.0 - Centralized database migration manager =>=>=>=>=>=>=>=>=>=>=>",
             { bolds: "white" }
         )
     );
